@@ -60,13 +60,16 @@ class TasksUpdate(APIView):
 
 
         with transaction.atomic():
+            task.status = task_status
+
             if task_status == 3:
                 worker.tasks_count -= 1
                 worker.save(update_fields=['tasks_count'])
 
-            task.status = task_status
-            task.completed_at = datetime.now(UTC)
-            task.save(update_fields=['status'])
+                task.completed_at = datetime.now(UTC)
+                task.save(update_fields=['status', 'completed_at'])
+            else:
+                task.save(update_fields=['status'])
 
         return Response(serializer.data)
 
